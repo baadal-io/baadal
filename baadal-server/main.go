@@ -15,11 +15,11 @@ func main() {
 	defer conn.Close()
 
 	l := libvirt.New(conn)
-	version, err := l.ConnectGetLibVersion()
-	common.CheckError(err, "Could not fetch version")
-	log.Println(version)
-
 	err = l.Connect()
 	common.CheckFatalError(err, "Could not initialize the connection to libvirt service")
 	defer l.Disconnect()
+
+	version, err := l.ConnectGetLibVersion()
+	common.CheckError(err, "Could not fetch version")
+	log.Println(version)
 }
