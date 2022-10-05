@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/digitalocean/go-libvirt"
+	libvirtxml "libvirt.org/libvirt-go-xml"
 )
 
 func main() {
@@ -22,4 +23,27 @@ func main() {
 	version, err := l.ConnectGetLibVersion()
 	common.CheckError(err, "Could not fetch version")
 	log.Println(version)
+
+	testDom := libvirtxml.Domain{
+		Name: "Test",
+		Memory: &libvirtxml.DomainMemory{
+			Value: 512,
+			Unit:  "M",
+		},
+		Type: "qemu",
+		OS: &libvirtxml.DomainOS{
+			Type: &libvirtxml.DomainOSType{
+				Type: "hvm",
+			},
+		},
+	}
+
+	testDomXml, err := testDom.Marshal()
+	common.CheckFatalError(err, "XML could not be generated")
+
+	dom, err := l.DomainDefineXML(testDomXml)
+	common.CheckFatalError(err, "Could not define domain")
+
+	err = l.DomainCreate(dom)
+	common.CheckFatalError(err, "Could not create domain")
 }
